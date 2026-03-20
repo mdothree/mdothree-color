@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="stripe-config" content='{"publishableKey":"REPLACE_WITH_STRIPE_PUBLISHABLE_KEY","priceIdMonthly":"REPLACE_WITH_STRIPE_PRICE_ID_MONTHLY","priceIdYearly":"REPLACE_WITH_STRIPE_PRICE_ID_YEARLY","portalUrl":"https://billing.stripe.com/p/login/REPLACE"}'>
+  <meta name="firebase-config" content='{"apiKey":"REPLACE_WITH_API_KEY","authDomain":"REPLACE.firebaseapp.com","projectId":"REPLACE_WITH_PROJECT_ID","storageBucket":"REPLACE.appspot.com","messagingSenderId":"REPLACE","appId":"REPLACE_WITH_APP_ID"}'>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Pick any color and instantly get HEX, RGB, HSL, and CMYK values. Eyedropper support included." />
+  <link rel="canonical" href="https://color.mdothree.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Color Picker — mdothree" />
+  <meta property="og:description" content="Pick any color and instantly get HEX, RGB, HSL, and CMYK values. Eyedropper support included." />
+  <meta property="og:url" content="https://color.mdothree.com/" />
+  <meta property="og:image" content="https://mdothree.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Color Picker — mdothree" />
+  <meta name="twitter:description" content="Pick any color and instantly get HEX, RGB, HSL, and CMYK values. Eyedropper support included." />
+  <title>Color Tools — mdothree</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#10B981" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" />
+  <link rel="preconnect" href="https://js.stripe.com" />
+  <link rel="preconnect" href="https://hooks.stripe.com" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="https://mdothree.com">m<span class="dot">.</span>3</a>
+    <nav class="tool-nav">
+      <a href="/" class="active">Picker</a>
+      <a href="/converter">Convert</a>
+      <a href="/shades">Shades</a>
+      <a href="/mixer">Mixer</a>
+      <a href="/contrast">Contrast</a>
+      <a href="/palette-generator">Palette</a>
+      <a href="/gradient">Gradient</a>
+      <a href="/colorblind">Colorblind</a>
+      <a href="https://mdothree.com/pro" class="pro-nav-link" style="margin-left:auto;background:linear-gradient(135deg,#10B981,#059669);color:#fff;border-radius:99px;padding:4px 12px;font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;text-decoration:none;white-space:nowrap">★ Pro</a>
+    </nav>
+  </header>
+
+  <main class="tool-main">
+    <div class="tool-header">
+      <h1>Color Picker</h1>
+      <p>Pick a color and instantly get its HEX, RGB, HSL, and CMYK values.</p>
+    </div>
+
+    <div class="tool-body">
+      <div class="color-picker-wrap">
+        <input type="color" id="colorPicker" class="color-input" value="#10B981" />
+        <div class="color-preview" id="colorPreview" style="background:#10B981"></div>
+        <div class="color-info">
+          <div id="colorName" class="color-name">Emerald Green</div>
+          <button class="btn-ghost" id="eyedropperBtn" id="eyedropperBtn">🎨 Eyedropper</button>
+        </div>
+      </div>
+
+      <div class="color-values" id="colorValues">
+        <div class="color-val-row" data-fmt="hex">
+          <span class="color-val-label">HEX</span>
+          <span class="color-val-value" id="hexVal">#10B981</span>
+          <button class="copy-btn" aria-label="Copy">⎘</button>
+        </div>
+        <div class="color-val-row" data-fmt="rgb">
+          <span class="color-val-label">RGB</span>
+          <span class="color-val-value" id="rgbVal">rgb(16, 185, 129)</span>
+          <button class="copy-btn" aria-label="Copy">⎘</button>
+        </div>
+        <div class="color-val-row" data-fmt="hsl">
+          <span class="color-val-label">HSL</span>
+          <span class="color-val-value" id="hslVal">hsl(161, 84%, 39%)</span>
+          <button class="copy-btn" aria-label="Copy">⎘</button>
+        </div>
+        <div class="color-val-row" data-fmt="cmyk">
+          <span class="color-val-label">CMYK</span>
+          <span class="color-val-value" id="cmykVal">cmyk(91%, 0%, 30%, 27%)</span>
+          <button class="copy-btn" aria-label="Copy">⎘</button>
+        </div>
+        <div class="color-val-row" data-fmt="css">
+          <span class="color-val-label">CSS var</span>
+          <span class="color-val-value" id="cssVar">--color-primary: #10B981;</span>
+          <button class="copy-btn" aria-label="Copy">⎘</button>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn-ghost" href="shades.html" id="genShadesLink">Generate shades →</a>
+        <a class="btn-ghost" href="contrast.html" id="contrastLink">Check contrast →</a>
+        <a class="btn-ghost" href="mixer.html" id="mixerLink">Mix colors →</a>
+      </div>
+
+      <!-- Recent colors -->
+      <div>
+        <label class="field-label" style="margin-bottom:10px">Recent Colors</label>
+        <div id="recentColors" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js" type="module"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

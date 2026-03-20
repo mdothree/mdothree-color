@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Simulate how colors appear to people with protanopia, deuteranopia, or tritanopia color vision." />
+  <link rel="canonical" href="https://color.mdothree.com/colorblind" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Colorblind Simulator — mdothree" />
+  <meta property="og:description" content="Simulate how colors appear to people with protanopia, deuteranopia, or tritanopia color vision." />
+  <meta property="og:url" content="https://color.mdothree.com/colorblind" />
+  <meta property="og:image" content="https://mdothree.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Colorblind Simulator — mdothree" />
+  <meta name="twitter:description" content="Simulate how colors appear to people with protanopia, deuteranopia, or tritanopia color vision." />
+  <title>Colorblind Simulator — mdothree Color</title>
+  <meta name="stripe-config" content='{"publishableKey":"REPLACE_WITH_STRIPE_PUBLISHABLE_KEY","priceIdMonthly":"REPLACE_WITH_STRIPE_PRICE_ID_MONTHLY","priceIdYearly":"REPLACE_WITH_STRIPE_PRICE_ID_YEARLY","portalUrl":"https://billing.stripe.com/p/login/REPLACE"}'>
+  <meta name="firebase-config" content='{"apiKey":"REPLACE_WITH_API_KEY","authDomain":"REPLACE.firebaseapp.com","projectId":"REPLACE_WITH_PROJECT_ID","storageBucket":"REPLACE.appspot.com","messagingSenderId":"REPLACE","appId":"REPLACE_WITH_APP_ID"}'>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#10B981" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" />
+  <link rel="preconnect" href="https://js.stripe.com" />
+  <link rel="preconnect" href="https://hooks.stripe.com" />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="logo" href="https://mdothree.com">m<span class="dot">.</span>3</a>
+    <nav class="tool-nav">
+      <a href="/">Picker</a>
+      <a href="/converter">Convert</a>
+      <a href="/shades">Shades</a>
+      <a href="/mixer">Mixer</a>
+      <a href="/contrast">Contrast</a>
+      <a href="/palette-generator">Palette</a>
+      <a href="/gradient">Gradient</a>
+      <a href="/colorblind" class="active">Colorblind</a>
+      <a href="https://mdothree.com/pro" class="pro-nav-link">★ Pro</a>
+    </nav>
+  </header>
+
+  <main class="tool-main">
+    <div class="tool-header"><h1>Colorblind Simulator</h1><p>See how colors appear to people with different types of color vision deficiency. <strong>Pro feature.</strong></p></div>
+    <div class="tool-body">
+      <div>
+        <label class="field-label">Base Color</label>
+        <input type="color" id="cbBase" class="color-input" value="#10B981" />
+      </div>
+      <div id="simGrid" class="sim-grid"></div>
+    </div>
+  </main>
+
+  <script src="js/pages/colorblind.js" type="module"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
