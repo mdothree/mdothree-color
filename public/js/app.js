@@ -4,6 +4,7 @@ import { hexToRgb, rgbToHsl, rgbToCmyk, getColorName } from './services/colorCon
 import { syncRecentColors, loadRecentColors }           from './services/paletteStorage.js';
 import { showToast, copyToClipboard }                   from './utils/colorUtils.js';
 import { onAuthChange, ensureAnonymousUser }             from './config/config.js';
+import { firebaseConfig } from './config/firebase.js';
 
 // ---- Auth badge ----
 const authBadge = Object.assign(document.createElement('div'), {
@@ -66,7 +67,14 @@ function renderRecent() {
 
 // ---- Color update ----
 function updateAll(hex) {
-  if (!hex || !/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+  if (!hex) return;
+  // Normalize whatever the picker emits (3/6/8-digit, any case) to #RRGGBB
+  const m = /^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.exec(hex.trim());
+  if (!m) return;
+  let h = m[1];
+  if (h.length === 3) h = h.split('').map(c => c + c).join('');
+  if (h.length === 8) h = h.slice(0, 6); // drop alpha
+  hex = '#' + h.toLowerCase();
   if (preview) preview.style.background = hex;
 
   const rgb  = hexToRgb(hex);
@@ -84,7 +92,7 @@ function updateAll(hex) {
 
 // ---- Events ----
 picker?.addEventListener('input', () => updateAll(picker.value));
-picker?.addEventListener('change', () => { addRecent(picker.value); });
+picker?.addEventListener('change', () => { updateAll(picker.value); addRecent(picker.value); });
 
 // Copy buttons
 document.querySelectorAll('.color-val-row').forEach(row => {

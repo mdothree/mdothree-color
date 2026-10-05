@@ -169,3 +169,5 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text-p
 .empty-state         { font-size: 0.8rem; color: var(--text-secondary); }
 .copy-hex-btn        { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.78rem; color: var(--text-secondary); transition: all var(--transition); }
 .copy-hex-btn:hover  { border-color: var(--emerald); color: var(--emerald); }
+
+.pro-nav-link { margin-left: auto; display: inline-flex; align-items: center; justify-content: center; gap: 4px; line-height: 1; background: linear-gradient(135deg,#10B981,#059669); color: #fff; border-radius: 99px; padding: 4px 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; text-decoration: none; white-space: nowrap; }
