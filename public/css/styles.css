@@ -41,7 +41,8 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text-p
   background: var(--surface); border: 1.5px solid var(--border);
   border-radius: var(--radius); padding: 20px;
 }
-.color-input { width: 80px; height: 80px; border: none; border-radius: 10px; cursor: pointer; padding: 0; background: none; }
+/* Main picker swatch: same 80x80 as the preview. Scoped so it is not overridden by the generic .color-input rule below. */
+.color-picker-wrap .color-input { width: 80px; height: 80px; border: none; border-radius: 10px; cursor: pointer; padding: 0; background: none; }
 .color-preview { width: 80px; height: 80px; border-radius: 10px; border: 1px solid var(--border); }
 .color-info { display: flex; flex-direction: column; gap: 8px; }
 .color-name { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; }
@@ -50,13 +51,15 @@ body { font-family: var(--font-body); background: var(--bg); color: var(--text-p
 .color-values { display: flex; flex-direction: column; gap: 0; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 .color-val-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .color-val-row:last-child { border-bottom: none; }
+.color-val-row--target { background: rgba(16,185,129,0.08); box-shadow: inset 3px 0 0 var(--emerald); }
+.color-val-row--target .color-val-label { color: var(--text-primary); }
 .color-val-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); min-width: 50px; }
 .color-val-value { font-family: var(--font-mono); font-size: 0.875rem; flex: 1; }
 .copy-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.85rem; color: var(--text-secondary); transition: all var(--transition); }
 .copy-btn:hover { border-color: var(--emerald); color: var(--emerald); }
 
 /* Swatches */
-.color-swatch { width: 36px; height: 36px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform var(--transition), border-color var(--transition); }
+.color-swatch { width: 36px; height: 36px; padding: 0; border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: transform var(--transition), border-color var(--transition); }
 .color-swatch:hover { transform: scale(1.12); border-color: var(--border); }
 
 /* Shade row */

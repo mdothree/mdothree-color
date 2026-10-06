@@ -6,7 +6,8 @@
     "dev": "node scripts/inject-config.cjs && npx serve public",
     "build": "node scripts/inject-config.cjs",
     "start": "npx serve public",
-    "test": "node --test --experimental-vm-modules tests/colorConverter.test.js"
+    "test": "node --test --experimental-vm-modules tests/colorConverter.test.js tests/converter-validation.test.js",
+    "check": "node scripts/check-imports.mjs public/js"
   },
   "devDependencies": {
     "serve": "^14.0.0"

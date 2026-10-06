@@ -1,83 +1,150 @@
 // js/pages/converter.js — Color Converter page logic
-import { hexToRgb, rgbToHex, hslToRgb, cmykToRgb, convertAll, getColorName } from '../services/colorConverter.js';
+import { rgbToHex, hslToRgb, cmykToRgb, convertAll, getColorName, normalizeHex } from '../services/colorConverter.js';
 import { withLoading, showToast as uiToast, showError } from '../utils/ui-helpers.js';
 import { showToast, copyToClipboard } from '../utils/colorUtils.js';
-import { initSubscription }           from '../services/subscriptionService.js';
+import { initSubscription, onSubscriptionChange } from '../services/subscriptionService.js';
 import { proBadge, handleStripeReturn } from '../services/paywallUI.js';
 import { onAuthChange }               from '../config/config.js';
 
 initSubscription();
 handleStripeReturn();
-onAuthChange(u => {
+// Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
+onSubscriptionChange(status => {
   const nav = document.querySelector('.tool-nav');
   if (!nav) return;
-  if (u && !nav.querySelector('.pro-badge')) nav.appendChild(proBadge());
+  const existing = nav.querySelector('.pro-badge');
+  if (status.isPro && !existing) nav.appendChild(proBadge());
+  else if (!status.isPro && existing) existing.remove();
 });
 
-function parseToHex(val, fmt) {
+const NUM = '(-?\\d*\\.?\\d+)';
+const SEP = '\\s*[,\\s]\\s*';
+const ALPHA = '(?:\\s*[,/]\\s*[\\d.]+%?)?';
+const RE = {
+  rgb:  new RegExp(`^(?:rgba?\\s*\\()?\\s*${NUM}${SEP}${NUM}${SEP}${NUM}${ALPHA}\\s*\\)?$`, 'i'),
+  hsl:  new RegExp(`^(?:hsla?\\s*\\()?\\s*${NUM}(?:deg)?${SEP}${NUM}%?${SEP}${NUM}%?${ALPHA}\\s*\\)?$`, 'i'),
+  cmyk: new RegExp(`^(?:cmyk\\s*\\()?\\s*${NUM}%?${SEP}${NUM}%?${SEP}${NUM}%?${SEP}${NUM}%?\\s*\\)?$`, 'i'),
+};
+
+/** Detect the format from an explicit prefix ("#", "rgb(", "hsl(", "cmyk("); null if ambiguous. */
+function detectFormat(val) {
+  const v = val.trim().toLowerCase();
+  if (v.startsWith('#')) return 'hex';
+  if (/^rgba?\s*\(/.test(v)) return 'rgb';
+  if (/^hsla?\s*\(/.test(v)) return 'hsl';
+  if (/^cmyk\s*\(/.test(v)) return 'cmyk';
+  return null;
+}
+
+function inRange(vals, max, name) {
+  vals.forEach((v, i) => {
+    if (!(v >= 0 && v <= max[i])) throw new Error(`${name} values out of range (expected ${max.map(m => '0–' + m).join(', ')})`);
+  });
+}
+
+export function parseToHex(val, fmt) {
   val = val.trim();
-  if (fmt === 'hex')  return val.startsWith('#') ? val : '#' + val;
+  if (fmt === 'hex')  return normalizeHex(val);
+  const m = val.match(RE[fmt] || /$^/);
   if (fmt === 'rgb')  {
-    const m = val.match(/(\d+)[,\s]+(\d+)[,\s]+(\d+)/);
-    if (!m) throw new Error('Invalid RGB');
-    return rgbToHex(+m[1], +m[2], +m[3]);
+    if (!m) throw new Error('Invalid RGB — use e.g. rgb(16, 185, 129)');
+    const v = [+m[1], +m[2], +m[3]];
+    inRange(v, [255, 255, 255], 'RGB');
+    return rgbToHex(...v);
   }
   if (fmt === 'hsl')  {
-    const m = val.match(/(\d+)[,\s]+(\d+)%?[,\s]+(\d+)%?/);
-    if (!m) throw new Error('Invalid HSL');
-    const rgb = hslToRgb(+m[1], +m[2], +m[3]);
+    if (!m) throw new Error('Invalid HSL — use e.g. hsl(160, 84%, 39%)');
+    const v = [+m[1], +m[2], +m[3]];
+    inRange(v, [360, 100, 100], 'HSL');
+    const rgb = hslToRgb(v[0] % 360, v[1], v[2]);
     return rgbToHex(rgb.r, rgb.g, rgb.b);
   }
   if (fmt === 'cmyk') {
-    const m = val.match(/(\d+)%?[,\s]+(\d+)%?[,\s]+(\d+)%?[,\s]+(\d+)%?/);
-    if (!m) throw new Error('Invalid CMYK');
-    const rgb = cmykToRgb(+m[1], +m[2], +m[3], +m[4]);
+    if (!m) throw new Error('Invalid CMYK — use e.g. cmyk(91%, 0%, 30%, 27%)');
+    const v = [+m[1], +m[2], +m[3], +m[4]];
+    inRange(v, [100, 100, 100, 100], 'CMYK');
+    const rgb = cmykToRgb(...v);
     return rgbToHex(rgb.r, rgb.g, rgb.b);
   }
   throw new Error('Unknown format');
 }
 
-document.getElementById('convertBtn').addEventListener('click', () => {
-  const val = document.getElementById('convInput').value;
-  const fmt = document.getElementById('fromFmt').value;
-  if (!val) return;
+const inputEl   = document.getElementById('convInput');
+const fromFmtEl = document.getElementById('fromFmt');
+const toFmtEl   = document.getElementById('toFmt');
+let lastAll = null;
 
+function convert() {
+  const val = inputEl.value;
+  showError('', inputEl);
+  if (!val.trim()) return;
+
+  // Honour an explicit prefix (e.g. pasting "rgb(…)" while From = HEX) and sync the From selector.
+  const detected = detectFormat(val);
+  if (detected && detected !== fromFmtEl.value) fromFmtEl.value = detected;
+  const fmt = fromFmtEl.value;
+
+  let hex, all;
   try {
-    const hex = parseToHex(val, fmt);
-    const all = convertAll(hex);
-
-    document.getElementById('convPreview').style.background = hex;
-    document.getElementById('convColorName').textContent    = getColorName(hex);
-
-    const rows = document.getElementById('convRows');
-    rows.innerHTML = '';
-
-    Object.entries(all).filter(([k]) => k !== 'raw').forEach(([label, value]) => {
-      const row = document.createElement('div');
-      row.className = 'color-val-row';
-      row.innerHTML = `
-        <span class="color-val-label">${label}</span>
-        <span class="color-val-value">${value}</span>
-        <button class="copy-btn" aria-label="Copy ${label}">⎘</button>
-      `;
-      row.querySelector('.copy-btn').addEventListener('click', async () => {
-        await copyToClipboard(value);
-        showToast('Copied!');
-      });
-      rows.appendChild(row);
-    });
-
-    document.getElementById('convOutput').hidden = false;
+    hex = parseToHex(val, fmt);
+    all = convertAll(hex);
   } catch (e) {
-    showToast('Error: ' + e.message);
+    lastAll = null;
+    document.getElementById('convOutput').hidden = true;
+    document.getElementById('convPreview').style.background = '';
+    document.getElementById('convColorName').textContent = '';
+    showError(e.message, inputEl);
+    return;
   }
-});
+  lastAll = all;
 
+  document.getElementById('convPreview').style.background = hex;
+  document.getElementById('convColorName').textContent    = getColorName(hex);
+
+  const rows = document.getElementById('convRows');
+  rows.innerHTML = '';
+
+  // Requested "To" format first and highlighted, then the rest.
+  const target  = toFmtEl.value;
+  const entries = Object.entries(all).filter(([k]) => k !== 'raw');
+  entries.sort(([a], [b]) => (b === target) - (a === target));
+
+  entries.forEach(([label, value]) => {
+    const row = document.createElement('div');
+    row.className = 'color-val-row' + (label === target ? ' color-val-row--target' : '');
+    const lab = document.createElement('span');
+    lab.className = 'color-val-label';
+    lab.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'color-val-value';
+    v.textContent = value;
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.setAttribute('aria-label', `Copy ${label}`);
+    btn.textContent = '⎘';
+    btn.addEventListener('click', async () => {
+      const ok = await copyToClipboard(value);
+      showToast(ok ? 'Copied!' : 'Copy failed — select the value and copy manually');
+    });
+    row.append(lab, v, btn);
+    rows.appendChild(row);
+  });
+
+  document.getElementById('convOutput').hidden = false;
+}
+
+document.getElementById('convertBtn').addEventListener('click', convert);
+inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') convert(); });
+toFmtEl.addEventListener('change', () => { if (lastAll) convert(); });
+
+// Swap: the converted "To" value becomes the new input, and From/To trade places.
 document.getElementById('convSwap').addEventListener('click', () => {
-  const a = document.getElementById('fromFmt').value;
-  const b = document.getElementById('toFmt').value;
-  document.getElementById('fromFmt').value = b;
-  document.getElementById('toFmt').value   = a;
+  const a = fromFmtEl.value;
+  const b = toFmtEl.value;
+  if (lastAll && lastAll[b]) inputEl.value = lastAll[b];
+  fromFmtEl.value = b;
+  toFmtEl.value   = a;
+  if (inputEl.value.trim()) convert();
 });
 
 // Global error boundary — catch unhandled promise rejections

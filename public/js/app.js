@@ -56,10 +56,12 @@ function renderRecent() {
   if (!recentEl) return;
   recentEl.innerHTML = '';
   recent.forEach(hex => {
-    const swatch = document.createElement('div');
+    const swatch = document.createElement('button'); // focusable + keyboard-activatable
+    swatch.type = 'button';
     swatch.className = 'color-swatch';
     swatch.style.background = hex;
     swatch.title = hex;
+    swatch.setAttribute('aria-label', `Use recent color ${hex}`);
     swatch.addEventListener('click', () => { picker.value = hex; updateAll(hex); });
     recentEl.appendChild(swatch);
   });
@@ -98,7 +100,7 @@ picker?.addEventListener('change', () => { updateAll(picker.value); addRecent(pi
 document.querySelectorAll('.color-val-row').forEach(row => {
   row.querySelector('.copy-btn')?.addEventListener('click', async () => {
     const val = row.querySelector('.color-val-value')?.textContent;
-    if (val) { await copyToClipboard(val); showToast('Copied!'); }
+    if (val) { showToast((await copyToClipboard(val)) ? 'Copied!' : 'Copy failed'); }
   });
 });
 

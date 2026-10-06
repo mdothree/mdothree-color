@@ -2,16 +2,19 @@
 import { mixColors }                    from '../services/colorConverter.js';
 import { withLoading, showToast as uiToast, showError } from '../utils/ui-helpers.js';
 import { showToast, copyToClipboard }   from '../utils/colorUtils.js';
-import { initSubscription }             from '../services/subscriptionService.js';
+import { initSubscription, onSubscriptionChange } from '../services/subscriptionService.js';
 import { proBadge, handleStripeReturn } from '../services/paywallUI.js';
 import { onAuthChange }                 from '../config/config.js';
 
 initSubscription();
 handleStripeReturn();
-onAuthChange(u => {
+// Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
+onSubscriptionChange(status => {
   const nav = document.querySelector('.tool-nav');
   if (!nav) return;
-  if (u && !nav.querySelector('.pro-badge')) nav.appendChild(proBadge());
+  const existing = nav.querySelector('.pro-badge');
+  if (status.isPro && !existing) nav.appendChild(proBadge());
+  else if (!status.isPro && existing) existing.remove();
 });
 
 const colorAEl  = document.getElementById('colorA');
@@ -48,13 +51,11 @@ function updateMix() {
 
 document.getElementById('copyMix').addEventListener('click', async () => {
   const hex = hexEl.textContent;
-  await copyToClipboard(hex);
-  showToast(hex + ' copied!');
+  showToast((await copyToClipboard(hex)) ? hex + ' copied!' : 'Copy failed');
 });
 
 hexEl.addEventListener('click', async () => {
-  await copyToClipboard(hexEl.textContent);
-  showToast('Copied!');
+  showToast((await copyToClipboard(hexEl.textContent)) ? 'Copied!' : 'Copy failed');
 });
 
 updateMix();

@@ -1,16 +1,19 @@
 // js/pages/contrast.js — Contrast Checker page logic
-import { contrastRatio, wcagLevel }     from '../services/colorConverter.js';
+import { contrastRatio, contrastRatioRaw, wcagLevel } from '../services/colorConverter.js';
 import { withLoading, showToast as uiToast, showError } from '../utils/ui-helpers.js';
-import { initSubscription }             from '../services/subscriptionService.js';
+import { initSubscription, onSubscriptionChange } from '../services/subscriptionService.js';
 import { proBadge, handleStripeReturn } from '../services/paywallUI.js';
 import { onAuthChange }                 from '../config/config.js';
 
 initSubscription();
 handleStripeReturn();
-onAuthChange(u => {
+// Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
+onSubscriptionChange(status => {
   const nav = document.querySelector('.tool-nav');
   if (!nav) return;
-  if (u && !nav.querySelector('.pro-badge')) nav.appendChild(proBadge());
+  const existing = nav.querySelector('.pro-badge');
+  if (status.isPro && !existing) nav.appendChild(proBadge());
+  else if (!status.isPro && existing) existing.remove();
 });
 
 const fgEl      = document.getElementById('fgColor');
@@ -28,11 +31,12 @@ function update() {
   document.getElementById('previewLarge').style.color = fg;
   document.getElementById('previewSmall').style.color = fg;
 
-  const ratio  = contrastRatio(fg, bg);
-  const levels = wcagLevel(ratio);
+  const raw    = contrastRatioRaw(fg, bg);   // pass/fail on the unrounded value
+  const ratio  = contrastRatio(fg, bg);      // truncated for display
+  const levels = wcagLevel(raw);
 
   scoreEl.textContent = ratio + ':1';
-  scoreEl.style.color = ratio >= 7 ? 'var(--emerald)' : ratio >= 4.5 ? '#22C55E' : ratio >= 3 ? '#F59E0B' : '#EF4444';
+  scoreEl.style.color = raw >= 7 ? 'var(--emerald)' : raw >= 4.5 ? '#22C55E' : raw >= 3 ? '#F59E0B' : '#EF4444';
 
   badgesEl.innerHTML = '';
   [

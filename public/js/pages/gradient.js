@@ -50,14 +50,12 @@ function initPage() {
   });
 
   document.getElementById('copyGradCSS').addEventListener('click', async () => {
-    await copyToClipboard(document.getElementById('gradCSS').textContent);
-    showToast('CSS copied!');
+    showToast((await copyToClipboard(document.getElementById('gradCSS').textContent)) ? 'CSS copied!' : 'Copy failed');
   });
 
   document.getElementById('copyGradTw').addEventListener('click', async () => {
     const tw = gradientTailwind(getStops());
-    await copyToClipboard(tw);
-    showToast('Tailwind class copied!');
+    showToast((await copyToClipboard(tw)) ? 'Tailwind class copied!' : 'Copy failed');
   });
 
   update();

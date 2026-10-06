@@ -3,7 +3,10 @@
 
 // ---- HEX ----
 export function hexToRgb(hex) {
-  const clean = hex.replace('#', '');
+  let clean = String(hex).trim().replace(/^#/, '');
+  // #RGBA / #RRGGBBAA: drop the alpha channel instead of mis-reading the digits
+  if (clean.length === 4) clean = clean.slice(0, 3);
+  if (clean.length === 8) clean = clean.slice(0, 6);
   const full  = clean.length === 3
     ? clean.split('').map(c => c + c).join('')
     : clean;
@@ -11,8 +14,21 @@ export function hexToRgb(hex) {
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
+/** True for #RGB, #RGBA, #RRGGBB, #RRGGBBAA (leading # optional). */
+export function isValidHex(hex) {
+  return /^#?([0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(String(hex).trim());
+}
+
+/** Normalise any valid hex to lowercase #rrggbb (alpha dropped). Throws on invalid input. */
+export function normalizeHex(hex) {
+  if (!isValidHex(hex)) throw new Error(`"${String(hex).trim()}" is not a valid hex color (use #RGB or #RRGGBB)`);
+  const { r, g, b } = hexToRgb(hex);
+  return rgbToHex(r, g, b);
+}
+
 export function rgbToHex(r, g, b) {
-  return '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+  // clamp to 0–255 and round, so out-of-range input can never produce an invalid hex string
+  return '#' + [r, g, b].map(v => Math.min(255, Math.max(0, Math.round(Number(v) || 0))).toString(16).padStart(2, '0')).join('');
 }
 
 // ---- HSL ----
@@ -147,12 +163,18 @@ function luminance(r, g, b) {
   return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
 }
 
-export function contrastRatio(hex1, hex2) {
+/** Unrounded contrast ratio — use this for WCAG pass/fail (WCAG says not to round). */
+export function contrastRatioRaw(hex1, hex2) {
   const c1 = hexToRgb(hex1), c2 = hexToRgb(hex2);
   const l1 = luminance(c1.r, c1.g, c1.b);
   const l2 = luminance(c2.r, c2.g, c2.b);
   const lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
-  return +((lighter + 0.05) / (darker + 0.05)).toFixed(2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/** Contrast ratio for display, truncated (not rounded) to 2 decimals so 4.496 shows 4.49, never 4.5. */
+export function contrastRatio(hex1, hex2) {
+  return Math.floor(contrastRatioRaw(hex1, hex2) * 100 + 1e-9) / 100;
 }
 
 export function wcagLevel(ratio) {

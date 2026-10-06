@@ -2,16 +2,19 @@
 import { generateShades }               from '../services/colorConverter.js';
 import { withLoading, showToast as uiToast, showError } from '../utils/ui-helpers.js';
 import { showToast, copyToClipboard, isDark } from '../utils/colorUtils.js';
-import { initSubscription }             from '../services/subscriptionService.js';
+import { initSubscription, onSubscriptionChange } from '../services/subscriptionService.js';
 import { proGate, proBadge, handleStripeReturn } from '../services/paywallUI.js';
 import { onAuthChange }                 from '../config/config.js';
 
 initSubscription();
 handleStripeReturn();
-onAuthChange(u => {
+// Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
+onSubscriptionChange(status => {
   const nav = document.querySelector('.tool-nav');
   if (!nav) return;
-  if (u && !nav.querySelector('.pro-badge')) nav.appendChild(proBadge());
+  const existing = nav.querySelector('.pro-badge');
+  if (status.isPro && !existing) nav.appendChild(proBadge());
+  else if (!status.isPro && existing) existing.remove();
 });
 
 let lastShades = [];
@@ -39,8 +42,7 @@ function renderShades(shades) {
       <button class="btn-ghost copy-shade-btn" aria-label="Copy ${hex.toUpperCase()}">⎘ Copy</button>
     `;
     row.querySelector('.copy-shade-btn').addEventListener('click', async () => {
-      await copyToClipboard(hex.toUpperCase());
-      showToast(hex.toUpperCase() + ' copied!');
+      showToast((await copyToClipboard(hex.toUpperCase())) ? hex.toUpperCase() + ' copied!' : 'Copy failed');
     });
     out.appendChild(row);
   });
@@ -58,16 +60,14 @@ document.getElementById('exportCSS').addEventListener('click', async () => {
   if (!lastShades.length) return;
   if (!await proGate('color.export_formats')) return;
   const css = lastShades.map((c, i) => `  --shade-${(i + 1) * 100}: ${c.toUpperCase()};`).join('\n');
-  await copyToClipboard(`:root {\n${css}\n}`);
-  showToast('CSS vars copied!');
+  showToast((await copyToClipboard(`:root {\n${css}\n}`)) ? 'CSS vars copied!' : 'Copy failed');
 });
 
 document.getElementById('exportSCSS').addEventListener('click', async () => {
   if (!lastShades.length) return;
   if (!await proGate('color.export_formats')) return;
   const scss = lastShades.map((c, i) => `$shade-${(i + 1) * 100}: ${c.toUpperCase()};`).join('\n');
-  await copyToClipboard(scss);
-  showToast('SCSS vars copied!');
+  showToast((await copyToClipboard(scss)) ? 'SCSS vars copied!' : 'Copy failed');
 });
 
 // Auto-render on load

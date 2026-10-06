@@ -13,10 +13,13 @@ initSubscription();
 handleStripeReturn();
 ensureAnonymousUser().then(refreshSavedPalettes);
 
-onAuthChange(u => {
+// Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
+onSubscriptionChange(status => {
   const nav = document.querySelector('.tool-nav');
   if (!nav) return;
-  if (u && !nav.querySelector('.pro-badge')) nav.appendChild(proBadge());
+  const existing = nav.querySelector('.pro-badge');
+  if (status.isPro && !existing) nav.appendChild(proBadge());
+  else if (!status.isPro && existing) existing.remove();
 });
 
 onSubscriptionChange(status => {
@@ -51,8 +54,7 @@ function render(colors) {
     `;
     item.querySelector('.copy-hex-btn').addEventListener('click', async e => {
       e.stopPropagation();
-      await copyToClipboard(hex.toUpperCase());
-      showToast('Copied ' + hex.toUpperCase());
+      showToast((await copyToClipboard(hex.toUpperCase())) ? 'Copied ' + hex.toUpperCase() : 'Copy failed');
     });
     grid.appendChild(item);
   });
@@ -67,8 +69,7 @@ function render(colors) {
   cssBtn.addEventListener('click', async () => {
     if (!await proGate('color.export_formats')) return;
     const css = colors.map((c, i) => `  --color-${i + 1}: ${c.toUpperCase()};`).join('\n');
-    await copyToClipboard(`:root {\n${css}\n}`);
-    showToast('CSS vars copied!');
+    showToast((await copyToClipboard(`:root {\n${css}\n}`)) ? 'CSS vars copied!' : 'Copy failed');
   });
 
   const jsonBtn = document.createElement('button');
@@ -76,8 +77,7 @@ function render(colors) {
   jsonBtn.textContent = 'Copy as JSON';
   jsonBtn.addEventListener('click', async () => {
     if (!await proGate('color.export_formats')) return;
-    await copyToClipboard(JSON.stringify(colors, null, 2));
-    showToast('JSON copied!');
+    showToast((await copyToClipboard(JSON.stringify(colors, null, 2))) ? 'JSON copied!' : 'Copy failed');
   });
 
   exportRow.appendChild(cssBtn);
@@ -86,7 +86,7 @@ function render(colors) {
 
 document.getElementById('genPalette').addEventListener('click', withLoading(document.getElementById('genPalette'), 'Generating…', async () => {
   render(generatePalette(document.getElementById('baseColor').value, schemeEl.value));
-});
+}));
 
 document.getElementById('randomBtn').addEventListener('click', () => {
   render(randomPalette(schemeEl.value));
@@ -107,7 +107,7 @@ document.getElementById('savePaletteBtn').addEventListener('click', withLoading(
   await savePalette({ name, colors: currentColors, scheme: schemeEl.value });
   await refreshSavedPalettes();
   showToast('Palette saved!');
-});
+}));
 
 async function refreshSavedPalettes() {
   const list     = document.getElementById('savedPalettesList');

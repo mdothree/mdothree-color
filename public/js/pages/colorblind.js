@@ -51,8 +51,7 @@ function initPage() {
         </div>
       `;
       card.addEventListener('click', async () => {
-        await copyToClipboard(simColor.toUpperCase());
-        showToast(`${label}: ${simColor.toUpperCase()} copied!`);
+        showToast((await copyToClipboard(simColor.toUpperCase())) ? `${label}: ${simColor.toUpperCase()} copied!` : 'Copy failed');
       });
       grid.appendChild(card);
     });
