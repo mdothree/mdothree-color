@@ -11,14 +11,14 @@ const authBadge = Object.assign(document.createElement('div'), {
   style: 'position:fixed;bottom:16px;right:16px;font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-mono);z-index:999',
 });
 document.body.appendChild(authBadge);
-onAuthChange(u => { authBadge.textContent = u ? '🔥 syncing' : '☁ offline'; });
+onAuthChange(u => { authBadge.textContent = u ? '● signed in' : '○ offline'; });
 
 // ---- Elements ----
 const picker    = document.getElementById('colorPicker');
 const preview   = document.getElementById('colorPreview');
 const recentEl  = document.getElementById('recentColors');
 
-// ---- Recent colors (Firebase-backed) ----
+// ---- Recent colors (localStorage only; never uploaded) ----
 let recent = [];
 
 async function initRecents() {
@@ -48,7 +48,6 @@ async function addRecent(hex) {
   // Persist locally for instant feedback
   try { localStorage.setItem('recentColors', JSON.stringify(recent)); } catch { /* storage unavailable */ }
   renderRecent();
-  // Sync to Firebase async (fire-and-forget)
   syncRecentColors(recent).catch(() => {});
 }
 

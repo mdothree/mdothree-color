@@ -23,7 +23,7 @@ onSubscriptionChange(status => {
 });
 
 onSubscriptionChange(status => {
-  document.getElementById('syncStatus').textContent = status.isPro ? '🔥 synced' : '☁ offline';
+  document.getElementById('syncStatus').textContent = 'Saved in this browser only';
 });
 
 // ---- Scheme selector ----
@@ -122,15 +122,22 @@ async function refreshSavedPalettes() {
   palettes.forEach(p => {
     const row = document.createElement('div');
     row.className = 'saved-palette-row';
-    const swatches = p.colors.map(c =>
-      `<div class="saved-palette-swatch" style="background:${c}" title="${c}"></div>`
-    ).join('');
     row.innerHTML = `
-      <div class="saved-palette-swatches">${swatches}</div>
-      <span class="saved-palette-name">${p.name}</span>
+      <div class="saved-palette-swatches"></div>
+      <span class="saved-palette-name"></span>
       <button class="btn-ghost btn-xs load-palette-btn">Load</button>
-      <button class="del-btn" data-id="${p.id}" aria-label="Delete palette">✕</button>
+      <button class="del-btn" aria-label="Delete palette">✕</button>
     `;
+    // Name and colors come from storage/user input: build with DOM APIs, never HTML strings.
+    const swatchWrap = row.querySelector('.saved-palette-swatches');
+    p.colors.forEach(c => {
+      const sw = document.createElement('div');
+      sw.className = 'saved-palette-swatch';
+      sw.style.background = String(c);
+      sw.title = String(c);
+      swatchWrap.appendChild(sw);
+    });
+    row.querySelector('.saved-palette-name').textContent = String(p.name ?? '');
     row.querySelector('.load-palette-btn').addEventListener('click', () => render(p.colors));
     row.querySelector('.del-btn').addEventListener('click', async () => {
       await deletePalette(p.id);
