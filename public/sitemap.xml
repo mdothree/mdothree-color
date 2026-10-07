@@ -2,42 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://color.mdothree.com/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/converter</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/shades</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/mixer</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/contrast</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/palette-generator</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/gradient</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
   <url>
     <loc>https://color.mdothree.com/colorblind</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-10-07</lastmod>
   </url>
 </urlset>

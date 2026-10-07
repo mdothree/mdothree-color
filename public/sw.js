@@ -1,7 +1,7 @@
 // sw.js — Service Worker (generated — do not edit directly)
 // Cache-first for assets, network-first for HTML navigation.
 
-const CACHE_NAME = 'color-v3';
+const CACHE_NAME = 'color-v4';
 
 const PRECACHE_URLS = [
   '/',
@@ -13,7 +13,7 @@ const PRECACHE_URLS = [
   '/gradient',
   '/colorblind',
   '/favicon.svg',
-  '/manifest.json',
+  '/site.webmanifest',
   '/css/styles.css',
   '/js/app.js'
 ];
