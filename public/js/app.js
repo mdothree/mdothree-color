@@ -4,7 +4,6 @@ import { hexToRgb, rgbToHsl, rgbToCmyk, getColorName } from './services/colorCon
 import { syncRecentColors, loadRecentColors }           from './services/paletteStorage.js';
 import { showToast, copyToClipboard }                   from './utils/colorUtils.js';
 import { onAuthChange, ensureAnonymousUser }             from './config/config.js';
-import { firebaseConfig } from './config/firebase.js';
 
 // ---- Auth badge ----
 const authBadge = Object.assign(document.createElement('div'), {
