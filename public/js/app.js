@@ -10,7 +10,7 @@ const authBadge = Object.assign(document.createElement('div'), {
   style: 'position:fixed;bottom:16px;right:16px;font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-mono);z-index:999',
 });
 document.body.appendChild(authBadge);
-onAuthChange(u => { authBadge.textContent = u ? '● signed in' : '○ offline'; });
+onAuthChange(u => { authBadge.textContent = (u && !u.isAnonymous) ? '● signed in' : ''; }); // anon guests see no badge
 
 // ---- Elements ----
 const picker    = document.getElementById('colorPicker');
