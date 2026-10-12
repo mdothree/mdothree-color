@@ -62,9 +62,9 @@
     <div class="tool-header"><h1>Gradient Generator</h1><p>Create CSS linear, radial, and conic gradients. <strong>Pro feature.</strong></p></div>
     <div class="tool-body">
       <div class="gradient-color-row">
-        <div><label class="field-label">Color 1</label><input type="color" id="gc1" class="color-input" value="#10B981" /></div>
-        <div><label class="field-label">Color 2</label><input type="color" id="gc2" class="color-input" value="#3B82F6" /></div>
-        <div><label class="field-label">Color 3 (optional)</label><input type="color" id="gc3" class="color-input" value="#8B5CF6" /></div>
+        <div><label class="field-label" for="gc1">Color 1</label><input type="color" id="gc1" class="color-input" value="#10B981" /></div>
+        <div><label class="field-label" for="gc2">Color 2</label><input type="color" id="gc2" class="color-input" value="#3B82F6" /></div>
+        <div><label class="field-label" for="gc3">Color 3 (optional)</label><input type="color" id="gc3" class="color-input" value="#8B5CF6" /></div>
         <label class="checkbox-item"><input type="checkbox" id="use3" /> Use 3 colors</label>
       </div>
       <div class="gradient-options">
@@ -77,7 +77,7 @@
           </select>
         </div>
         <div id="angleGroup">
-          <label class="field-label">Angle: <span id="angleVal">90</span>°</label>
+          <label class="field-label" for="gradAngle">Angle: <span id="angleVal">90</span>°</label>
           <input type="range" id="gradAngle" class="slider" min="0" max="360" value="90" />
         </div>
       </div>
