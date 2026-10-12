@@ -74,10 +74,21 @@ const fromFmtEl = document.getElementById('fromFmt');
 const toFmtEl   = document.getElementById('toFmt');
 let lastAll = null;
 
+// C7B-COLOR-STALE-RESULT: results always describe the current input. Invalid, empty or
+// edited input clears the previous swatch/name/rows instead of leaving them on screen.
+function clearResult() {
+  lastAll = null;
+  const out = document.getElementById('convOutput');
+  out.hidden = true;
+  document.getElementById('convRows').replaceChildren();
+  document.getElementById('convPreview').style.background = '';
+  document.getElementById('convColorName').textContent = '';
+}
+
 function convert() {
   const val = inputEl.value;
   showError('', inputEl);
-  if (!val.trim()) return;
+  if (!val.trim()) { clearResult(); showError('Enter a color value, e.g. #10B981 or rgb(16,185,129).', inputEl); return; }
 
   // Honour an explicit prefix (e.g. pasting "rgb(…)" while From = HEX) and sync the From selector.
   const detected = detectFormat(val);
@@ -89,10 +100,7 @@ function convert() {
     hex = parseToHex(val, fmt);
     all = convertAll(hex);
   } catch (e) {
-    lastAll = null;
-    document.getElementById('convOutput').hidden = true;
-    document.getElementById('convPreview').style.background = '';
-    document.getElementById('convColorName').textContent = '';
+    clearResult();
     showError(e.message, inputEl);
     return;
   }
@@ -135,6 +143,7 @@ function convert() {
 
 document.getElementById('convertBtn').addEventListener('click', convert);
 inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') convert(); });
+inputEl.addEventListener('input', () => { if (lastAll) clearResult(); showError('', inputEl); });
 toFmtEl.addEventListener('change', () => { if (lastAll) convert(); });
 
 // Swap: the converted "To" value becomes the new input, and From/To trade places.
