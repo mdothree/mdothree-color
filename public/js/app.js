@@ -3,7 +3,7 @@
 import { hexToRgb, rgbToHsl, rgbToCmyk, getColorName } from './services/colorConverter.js';
 import { syncRecentColors, loadRecentColors }           from './services/paletteStorage.js';
 import { showToast, copyToClipboard }                   from './utils/colorUtils.js';
-import { ensureAnonymousUser }             from './config/config.js';
+import { restoreSession }             from './config/config.js';
 
 
 // ---- Elements ----
@@ -15,7 +15,7 @@ const recentEl  = document.getElementById('recentColors');
 let recent = [];
 
 async function initRecents() {
-  await ensureAnonymousUser();
+  await restoreSession();
   // Try Firebase first, fall back to localStorage
   try {
     const fbRecents = await loadRecentColors();

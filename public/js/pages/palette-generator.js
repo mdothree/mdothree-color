@@ -6,12 +6,12 @@ import { savePalette, loadPalettes, deletePalette } from '../services/paletteSto
 import { showToast, copyToClipboard, isDark }       from '../utils/colorUtils.js';
 import { initSubscription, onSubscriptionChange }   from '../services/subscriptionService.js';
 import { proGate, handleStripeReturn, proBadge }    from '../services/paywallUI.js';
-import { onAuthChange, ensureAnonymousUser }         from '../config/config.js';
+import { onAuthChange, restoreSession }         from '../config/config.js';
 import { promptModal }                                from '../utils/inline-modal.js';
 
 initSubscription();
 handleStripeReturn();
-ensureAnonymousUser().then(refreshSavedPalettes);
+restoreSession().then(refreshSavedPalettes);
 
 // Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
 onSubscriptionChange(status => {
