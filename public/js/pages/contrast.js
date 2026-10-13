@@ -9,10 +9,10 @@ initSubscription();
 handleStripeReturn();
 // Pro badge only for a real Pro entitlement (anonymous sign-in is not Pro).
 onSubscriptionChange(status => {
-  const nav = document.querySelector('.tool-nav');
+  const nav = document.querySelector('.mdo-actions');
   if (!nav) return;
   const existing = nav.querySelector('.pro-badge');
-  if (status.isPro && !existing) nav.appendChild(proBadge());
+  if (status.isPro && !existing) nav.insertBefore(proBadge(), nav.querySelector('[data-mdo-account]'));
   else if (!status.isPro && existing) existing.remove();
 });
 
@@ -36,7 +36,7 @@ function update() {
   const levels = wcagLevel(raw);
 
   scoreEl.textContent = ratio + ':1';
-  scoreEl.style.color = raw >= 7 ? 'var(--emerald)' : raw >= 4.5 ? '#22C55E' : raw >= 3 ? '#F59E0B' : '#EF4444';
+  scoreEl.style.color = raw >= 7 ? 'var(--emerald)' : raw >= 4.5 ? 'var(--score-aa)' : raw >= 3 ? 'var(--score-large)' : 'var(--score-fail)'; // theme tokens, AA on both themes
 
   badgesEl.innerHTML = '';
   [
