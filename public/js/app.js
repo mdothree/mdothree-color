@@ -110,3 +110,7 @@ document.getElementById('eyedropperBtn')?.addEventListener('click', async () => 
 // ---- Init ----
 initRecents();
 updateAll(picker?.value ?? '#10B981');
+
+// HID-017: the page starts with "Loading tool…" and disabled actions; release them now that the handlers are bound.
+document.querySelectorAll('[data-mdo-wait]').forEach(el => { el.disabled = false; el.removeAttribute('aria-busy'); el.removeAttribute('data-mdo-wait'); });
+document.getElementById('mdoLoadStatus')?.remove();

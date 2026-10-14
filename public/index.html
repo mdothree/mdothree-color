@@ -70,13 +70,14 @@
       <p>Pick a color and instantly get its HEX, RGB, HSL, and CMYK values.</p>
     </div>
 
+    <p class="mdo-load-status" id="mdoLoadStatus" role="status">Loading tool…</p>
     <div class="tool-body">
       <div class="color-picker-wrap">
         <input aria-label="Pick a color" type="color" id="colorPicker" class="color-input" value="#10B981" />
         <div class="color-preview" id="colorPreview" style="background:#10B981"></div>
         <div class="color-info">
-          <div id="colorName" class="color-name">Emerald Green</div>
-          <button class="btn-ghost" id="eyedropperBtn">🎨 Eyedropper</button>
+          <div id="colorName" class="color-name" role="status" aria-live="polite" aria-atomic="true">Emerald Green</div>
+          <button class="btn-ghost" id="eyedropperBtn" disabled aria-busy="true" data-mdo-wait>🎨 Eyedropper</button>
         </div>
       </div>
 
