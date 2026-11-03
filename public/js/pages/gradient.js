@@ -54,7 +54,7 @@ function initPage() {
   });
 
   document.getElementById('copyGradTw').addEventListener('click', async () => {
-    const tw = gradientTailwind(getStops());
+    const tw = gradientTailwind(getStops(), document.getElementById('gradType').value, parseInt(document.getElementById('gradAngle').value));
     showToast((await copyToClipboard(tw)) ? 'Tailwind class copied!' : 'Copy failed');
   });
 
