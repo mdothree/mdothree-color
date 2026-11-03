@@ -11,8 +11,11 @@ const MAX_PALETTES = 50;
 const MAX_RECENTS  = 20;
 
 const _mem = { [PALETTES_KEY]: [], [RECENTS_KEY]: [] };
+// Keys whose latest save only reached memory: storage may still hold an older readable value that must not shadow it.
+const _memOnly = new Set();
 
 function read(key) {
+  if (_memOnly.has(key)) return _mem[key].slice();
   try {
     const raw = localStorage.getItem(key);
     if (raw) {
@@ -25,7 +28,7 @@ function read(key) {
 
 function write(key, arr) {
   _mem[key] = arr.slice();
-  try { localStorage.setItem(key, JSON.stringify(arr)); } catch { /* memory only */ }
+  try { localStorage.setItem(key, JSON.stringify(arr)); _memOnly.delete(key); } catch { _memOnly.add(key); /* memory only */ }
 }
 
 // ---- Saved Palettes ----
